@@ -12,7 +12,7 @@ impl TimetablePresenterConsole {
 }
 
 impl TimetablePresenter for TimetablePresenterConsole {
-    fn present(&self, timetable: &Timetable) {
+    fn present(&self, timetable: &Timetable, _eva: &String) {
         print_station_name(timetable);
         print_seperator_lines(2);
         print_timetablestop(timetable);
