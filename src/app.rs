@@ -42,7 +42,7 @@ impl App {
 
             match self.xmlparser.get_timetable(&timetable_changes) {
                 Ok(changes) => {
-                    self.presenter.present(&changes);
+                    self.presenter.present(&changes, &eva);
                 }
                 Err(_) => (),
             }
