@@ -14,9 +14,19 @@ use xmlparser::XmlParser;
 
 extern crate confy;
 
+fn load_config() -> Config {
+    match confy::load("dbtimetable", "config") {
+        Ok(config) => config,
+        Err(e) => {
+            eprintln!("Error loading config: {}. Using default config", e);
+            Config::default()
+        }
+    }
+}
+
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
-    let config: Config = confy::load("dbtimetable")?;
+    let config = load_config();
     let apiclient = DbApiClient::new(config.clone());
     let xmlparser = XmlParser::new();
     let presenter = Box::new(TimetablePresenterConsole::new());
