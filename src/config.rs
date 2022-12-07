@@ -14,7 +14,7 @@ impl ::std::default::Default for Config {
             url: "https://apis.deutschebahn.com/db-api-marketplace/apis/timetables/v1/".to_string(),
             client_id: "123456789".to_string(),
             api_key: "123456789".to_string(),
-            evas: vec!("8003368".to_string())
+            evas: vec!["8003368".to_string()],
         }
     }
 }
