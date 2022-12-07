@@ -10,6 +10,8 @@ You also need to obtain a Client ID and an API Key for the timeable API and set 
 Stations are identified by their EVA numbers. The stations you want to observe have to be configured in your local configuration [config.rs](src/config.rs)
 A list of stations alongside their EVA numbers can be found here: [Link](https://data.deutschebahn.com/dataset/data-haltestellen.html)
 
+## Configure output
+The output can be configured in your local configuration file with the option "presenter". Available types are "Console" and "Json". Default is "Console"
 ## License
 
 [License](LICENSE.md)

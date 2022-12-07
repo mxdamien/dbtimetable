@@ -1,11 +1,18 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
+
+#[derive(Deserialize, Serialize, Clone)]
+pub enum PresenterType {
+    Console,
+    Json,
+}
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Config {
     pub url: String,
     pub client_id: String,
     pub api_key: String,
-    pub evas: Vec<String>
+    pub evas: Vec<String>,
+    pub presenter: PresenterType,
 }
 
 impl ::std::default::Default for Config {
@@ -15,6 +22,6 @@ impl ::std::default::Default for Config {
             client_id: "123456789".to_string(),
             api_key: "123456789".to_string(),
             evas: vec!["8003368".to_string()],
-        }
+            presenter: PresenterType::Console        }
     }
 }
