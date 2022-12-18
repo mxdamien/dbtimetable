@@ -24,22 +24,20 @@ impl TimetablePresenterJson {
 }
 
 impl TimetablePresenter for TimetablePresenterJson {
-    fn present(&self, timetable: &Timetable, eva: &String) {
+    fn present(&self, timetable: &Timetable, eva: &str) {
         let station = get_station_name(timetable);
         let stops = get_stops(timetable, &station);
         let json = to_json(&stops);
-        write_to_file(&eva, &json);
+        write_to_file(eva, &json);
     }
 }
 
 fn get_station_name(timetable: &Timetable) -> String {
-    return format!(
-        "{}",
-        timetable
-            .station
-            .as_ref()
-            .unwrap_or(&"Station name missing".to_string())
-    );
+    timetable
+        .station
+        .as_ref()
+        .unwrap_or(&"Station name missing".to_string())
+        .to_string()
 }
 
 fn get_stops(timetable: &Timetable, station: &String) -> Vec<TimetableStop> {
@@ -58,11 +56,11 @@ fn get_stops(timetable: &Timetable, station: &String) -> Vec<TimetableStop> {
                     let changed_time = get_changed_time(dp);
 
                     stops.push(TimetableStop {
-                        station: station.clone(),
-                        train: train_name.clone(),
-                        end_station: end_station.clone(),
-                        planned_time: planned_time.clone(),
-                        actual_time: changed_time.clone(),
+                        station: station.to_string(),
+                        train: train_name,
+                        end_station,
+                        planned_time,
+                        actual_time: changed_time,
                     });
                 }
                 None => {}
@@ -77,55 +75,50 @@ fn get_train_name(
     tl: &crate::timetable::Triplabel,
     dp: &crate::timetable::ArrivalDeparture,
 ) -> String {
-    let c =
-        tl.c.as_ref()
-            .unwrap_or(tl.n.as_ref().unwrap_or(&"".to_string()))
-            .to_string();
-    let l =
-        dp.l.as_ref()
-            .unwrap_or(tl.n.as_ref().unwrap_or(&"".to_string()))
-            .to_string();
+    let c = tl.c.as_ref().unwrap_or(&"".to_string()).to_string();
+    let l = dp.l.as_ref().unwrap_or(&"".to_string()).to_string();
+    let n = tl.n.as_ref().unwrap_or(&"".to_string()).to_string();
 
-    return match (!c.is_empty(), !l.is_empty()) {
-        (true, true) => format!("{}{}", c, l),
+    return match (!c.is_empty(), !l.is_empty(), !n.is_empty()) {
+        (false, false, true) => n,
+        (false, true, true) => format!("{}{}", l, n),
+        (true, false, true) => format!("{}{}", c, n),
+        (true, true, _) => format!("{}{}", c, l),
         _ => "Train name missing".to_string(),
     };
 }
 
 fn get_train_end_station(dp: &ArrivalDeparture) -> String {
-    return format!(
-        "{}",
-        dp.ppth
-            .as_ref()
-            .unwrap_or(&"".to_string())
-            .split('|')
-            .last()
-            .unwrap_or(&"".to_string())
-    );
+    dp.ppth
+        .as_ref()
+        .unwrap_or(&"".to_string())
+        .split('|')
+        .last()
+        .unwrap_or("")
+        .to_string()
 }
 
 fn get_planned_time(dp: &ArrivalDeparture) -> String {
-    return format!(
+    format!(
         "{}",
         NaiveDateTime::parse_from_str(dp.pt.as_ref().unwrap_or(&"-".to_string()), "%y%m%d%H%M")
             .unwrap()
-            .to_string()
-    );
+    )
 }
 
 fn get_changed_time(dp: &crate::timetable::ArrivalDeparture) -> String {
     match NaiveDateTime::parse_from_str(dp.ct.as_ref().unwrap_or(&"-".to_string()), "%y%m%d%H%M") {
-        Ok(dt) => return format!("{}", dt.to_string()),
-        _ => return format!("No delay"),
+        Ok(dt) => dt.to_string(),
+        _ => "No delay".to_string(),
     }
 }
 
 fn to_json(stops: &Vec<TimetableStop>) -> String {
     let j = serde_json::to_string(&stops);
-    format!("{}", j.unwrap_or_default())
+    j.unwrap_or_default()
 }
 
-fn write_to_file(eva: &String, json: &String) {
+fn write_to_file(eva: &str, json: &String) {
     let filename = format!("{}.json", &eva);
     let f = File::create(filename).expect("Unable to create file");
     let mut f = BufWriter::new(f);

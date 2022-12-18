@@ -40,11 +40,8 @@ impl App {
                 Err(_) => "".into(),
             };
 
-            match self.xmlparser.get_timetable(&timetable_changes) {
-                Ok(changes) => {
-                    self.presenter.present(&changes, &eva);
-                }
-                Err(_) => (),
+            if let Ok(changes) = self.xmlparser.get_timetable(&timetable_changes) {
+                self.presenter.present(&changes, eva);
             }
         }
     }

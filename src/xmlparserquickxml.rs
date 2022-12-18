@@ -10,8 +10,8 @@ impl XmlParserQuickXml {
 }
 
 impl XmlParser for XmlParserQuickXml {
-    fn get_timetable(&self, xml: &String) -> Result<Timetable, String> {
-        match quick_xml::de::from_str::<Timetable>(xml.as_str()) {
+    fn get_timetable(&self, xml: &str) -> Result<Timetable, String> {
+        match quick_xml::de::from_str::<Timetable>(xml) {
             Ok(tt) => Ok(tt),
             Err(err) => {
                 println!("Timetable parsing error: {}", err);
