@@ -12,7 +12,7 @@ impl TimetablePresenterConsole {
 }
 
 impl TimetablePresenter for TimetablePresenterConsole {
-    fn present(&self, timetable: &Timetable, _eva: &String) {
+    fn present(&self, timetable: &Timetable, _eva: &str) {
         print_station_name(timetable);
         print_seperator_lines(2);
         print_timetablestop(timetable);
@@ -50,29 +50,27 @@ fn print_planned_time(dp: &ArrivalDeparture) {
         "Planned time: {}",
         NaiveDateTime::parse_from_str(dp.pt.as_ref().unwrap_or(&"-".to_string()), "%y%m%d%H%M")
             .unwrap()
-            .to_string()
     );
 }
 
 fn print_changed_time(dp: &crate::timetable::ArrivalDeparture) {
     match NaiveDateTime::parse_from_str(dp.ct.as_ref().unwrap_or(&"-".to_string()), "%y%m%d%H%M") {
-        Ok(dt) => println!("Actual time: {}", dt.to_string()),
+        Ok(dt) => println!("Actual time: {}", dt),
         _ => println!("Actual time: No delay"),
     }
 }
 
 fn print_train_info(tl: &crate::timetable::Triplabel, dp: &crate::timetable::ArrivalDeparture) {
     println!(
-        "{}{}: {}",
+        "{} {}: {}",
         tl.c.as_ref().unwrap_or(&"".to_string()),
-        dp.l.as_ref()
-            .unwrap_or(tl.n.as_ref().unwrap_or(&"".to_string())),
+        dp.l.as_ref().unwrap_or(&"".to_string()),
         dp.ppth
             .as_ref()
             .unwrap_or(&"".to_string())
             .split('|')
             .last()
-            .unwrap_or(&"".to_string())
+            .unwrap_or("")
     );
 }
 
