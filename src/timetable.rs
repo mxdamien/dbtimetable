@@ -1,5 +1,5 @@
-use serde::Deserialize;
 use merge::Merge;
+use serde::Deserialize;
 
 #[derive(Deserialize, Merge)]
 pub struct ArrivalDeparture {
