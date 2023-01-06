@@ -1,6 +1,7 @@
 mod app;
 mod config;
 mod dbapiclient;
+mod dbapiclientimpl;
 mod timetable;
 mod timetablepresenter;
 mod timetablepresenterconsole;
@@ -10,7 +11,7 @@ mod xmlparserquickxml;
 
 use app::App;
 use config::Config;
-use dbapiclient::DbApiClient;
+use dbapiclientimpl::DbApiClientImpl;
 use timetablepresenterconsole::TimetablePresenterConsole;
 use timetablepresenterjson::TimetablePresenterJson;
 use xmlparserquickxml::XmlParserQuickXml;
@@ -40,10 +41,14 @@ fn create_xmlparser() -> Box<dyn xmlparser::XmlParser> {
     Box::new(XmlParserQuickXml::new())
 }
 
+fn create_apiclient(config: Config) -> Box<dyn dbapiclient::DbApiClient> {
+    Box::new(DbApiClientImpl::new(config))
+}
+
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
     let config = load_config();
-    let apiclient = DbApiClient::new(config.clone());
+    let apiclient = create_apiclient(config.clone());
     let xmlparser = create_xmlparser();
     let presenter = create_presenter(&config.presenter);
     let app = App::new(apiclient, xmlparser, config.clone(), presenter);

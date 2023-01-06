@@ -4,7 +4,7 @@ use crate::{
 };
 
 pub struct App {
-    apiclient: DbApiClient,
+    apiclient: Box<dyn DbApiClient>,
     xmlparser: Box<dyn XmlParser>,
     config: Config,
     presenter: Box<dyn TimetablePresenter>,
@@ -16,7 +16,7 @@ impl App {
     }
 
     pub fn new(
-        apiclient: DbApiClient,
+        apiclient: Box<dyn DbApiClient>,
         xmlparser: Box<dyn XmlParser>,
         config: Config,
         presenter: Box<dyn TimetablePresenter>,
