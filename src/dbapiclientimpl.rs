@@ -14,14 +14,25 @@ impl DbApiClientImpl {
 
     fn construct_headers(&self) -> HeaderMap {
         let mut headers = HeaderMap::new();
-        headers.insert(
-            "DB-Api-Key",
-            HeaderValue::from_str(self.config.api_key.as_str()).unwrap(),
-        );
-        headers.insert(
-            "DB-Client-Id",
-            HeaderValue::from_str(self.config.client_id.as_str()).unwrap(),
-        );
+
+        if self.config.api_key.is_empty() {
+            println!("API key is empty");
+        } else {
+            headers.insert(
+                "DB-Api-Key",
+                HeaderValue::from_str(self.config.api_key.as_str()).unwrap(),
+            );
+        }
+
+        if self.config.client_id.is_empty() {
+            println!("Client ID is empty");
+        } else {
+            headers.insert(
+                "DB-Client-Id",
+                HeaderValue::from_str(self.config.client_id.as_str()).unwrap(),
+            );
+        }
+
         headers.insert(ACCEPT, HeaderValue::from_static("application/xml"));
         headers
     }
