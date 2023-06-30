@@ -33,11 +33,11 @@ impl TimetablePresenter for TimetablePresenterJson {
 }
 
 fn get_station_name(timetable: &Timetable) -> String {
-    timetable
-        .station
-        .as_ref()
-        .unwrap_or(&"Station name missing".to_string())
-        .to_string()
+    if let Some(station) = &timetable.station {
+        station.to_string()
+    } else {
+        "Station name missing".to_string()
+    }
 }
 
 fn get_stops(timetable: &Timetable, station: &String) -> Vec<TimetableStop> {
@@ -79,13 +79,13 @@ fn get_train_name(
     let l = dp.l.as_ref().unwrap_or(&"".to_string()).to_string();
     let n = tl.n.as_ref().unwrap_or(&"".to_string()).to_string();
 
-    return match (!c.is_empty(), !l.is_empty(), !n.is_empty()) {
+    match (!c.is_empty(), !l.is_empty(), !n.is_empty()) {
         (false, false, true) => n,
         (false, true, true) => format!("{}{}", l, n),
         (true, false, true) => format!("{}{}", c, n),
         (true, true, _) => format!("{}{}", c, l),
         _ => "Train name missing".to_string(),
-    };
+    }
 }
 
 fn get_train_end_station(dp: &ArrivalDeparture) -> String {
@@ -99,17 +99,22 @@ fn get_train_end_station(dp: &ArrivalDeparture) -> String {
 }
 
 fn get_planned_time(dp: &ArrivalDeparture) -> String {
-    format!(
-        "{}",
-        NaiveDateTime::parse_from_str(dp.pt.as_ref().unwrap_or(&"-".to_string()), "%y%m%d%H%M")
-            .unwrap()
-    )
+    if let Some(pt) = &dp.pt {
+        NaiveDateTime::parse_from_str(pt, "%y%m%d%H%M")
+            .map(|dt| dt.to_string())
+            .unwrap_or_else(|_| "-".to_string())
+    } else {
+        "-".to_string()
+    }
 }
 
-fn get_changed_time(dp: &crate::timetable::ArrivalDeparture) -> String {
-    match NaiveDateTime::parse_from_str(dp.ct.as_ref().unwrap_or(&"-".to_string()), "%y%m%d%H%M") {
-        Ok(dt) => dt.to_string(),
-        _ => "No delay".to_string(),
+fn get_changed_time(dp: &ArrivalDeparture) -> String {
+    if let Some(ct) = &dp.ct {
+        NaiveDateTime::parse_from_str(ct, "%y%m%d%H%M")
+            .map(|dt| dt.to_string())
+            .unwrap_or_else(|_| "No delay".to_string())
+    } else {
+        "No delay".to_string()
     }
 }
 
