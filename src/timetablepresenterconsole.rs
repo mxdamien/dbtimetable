@@ -21,22 +21,22 @@ impl TimetablePresenter for TimetablePresenterConsole {
 }
 
 fn print_timetablestop(timetable: &Timetable) {
-    timetable.s.as_ref().unwrap().iter().for_each(|s| {
-        print_departure(s);
-    });
+    if let Some(s) = &timetable.s {
+        for item in s.iter() {
+            print_departure(item);
+        }
+    } else {
+        println!("Timetable is empty.");
+    }
 }
 
 fn print_departure(s: &crate::timetable::TimetableStop) {
-    match &s.dp {
-        Some(dp) => match &s.tl {
-            Some(tl) => {
-                print_train_info(tl, dp);
-                print_time_info(dp);
-                print_seperator_lines(1);
-            }
-            None => (),
-        },
-        None => (),
+    if let Some(dp) = &s.dp {
+        if let Some(tl) = &s.tl {
+            print_train_info(tl, dp);
+            print_time_info(dp);
+            print_seperator_lines(1);
+        }
     }
 }
 
@@ -46,17 +46,18 @@ fn print_time_info(dp: &ArrivalDeparture) {
 }
 
 fn print_planned_time(dp: &ArrivalDeparture) {
-    println!(
-        "Planned time: {}",
-        NaiveDateTime::parse_from_str(dp.pt.as_ref().unwrap_or(&"-".to_string()), "%y%m%d%H%M")
-            .unwrap()
-    );
+    let pt = dp.pt.as_deref().unwrap_or("-");
+    if let Ok(dt) = NaiveDateTime::parse_from_str(pt, "%y%m%d%H%M") {
+        println!("Planned time: {}", dt);
+    }
 }
 
 fn print_changed_time(dp: &crate::timetable::ArrivalDeparture) {
-    match NaiveDateTime::parse_from_str(dp.ct.as_ref().unwrap_or(&"-".to_string()), "%y%m%d%H%M") {
-        Ok(dt) => println!("Actual time: {}", dt),
-        _ => println!("Actual time: No delay"),
+    let ct = dp.ct.as_deref().unwrap_or("-");
+    if let Ok(dt) = NaiveDateTime::parse_from_str(ct, "%y%m%d%H%M") {
+        println!("Actual time: {}", dt);
+    } else {
+        println!("Actual time: No delay");
     }
 }
 
