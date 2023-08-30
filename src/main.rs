@@ -4,16 +4,16 @@ mod dbapiclient;
 mod dbapiclientimpl;
 mod timetable;
 mod timetablepresenter;
-mod timetablepresenterconsole;
 mod timetablepresenterjson;
+mod timetablepresenterplaintext;
 mod xmlparser;
 mod xmlparserquickxml;
 
 use app::App;
 use config::Config;
 use dbapiclientimpl::DbApiClientImpl;
-use timetablepresenterconsole::TimetablePresenterConsole;
 use timetablepresenterjson::TimetablePresenterJson;
+use timetablepresenterplaintext::TimetablePresenterPlainText;
 use xmlparserquickxml::XmlParserQuickXml;
 
 extern crate confy;
@@ -32,7 +32,7 @@ fn create_presenter(
     presentertype: &config::PresenterType,
 ) -> Box<dyn timetablepresenter::TimetablePresenter> {
     match presentertype {
-        config::PresenterType::Console => Box::new(TimetablePresenterConsole::new()),
+        config::PresenterType::PlainText => Box::new(TimetablePresenterPlainText::new()),
         config::PresenterType::Json => Box::new(TimetablePresenterJson::new()),
     }
 }
@@ -51,7 +51,7 @@ async fn main() -> Result<(), std::io::Error> {
     let apiclient = create_apiclient(config.clone());
     let xmlparser = create_xmlparser();
     let presenter = create_presenter(&config.presenter);
-    let app = App::new(apiclient, xmlparser, config.clone(), presenter);
+    let mut app = App::new(apiclient, xmlparser, config.clone(), presenter);
     app.run().await;
 
     Ok(())

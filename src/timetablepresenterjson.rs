@@ -2,8 +2,6 @@ use crate::timetable::{ArrivalDeparture, Timetable};
 use crate::timetablepresenter::TimetablePresenter;
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
-use std::fs::File;
-use std::io::{BufWriter, Write};
 
 #[derive(Serialize, Deserialize)]
 struct TimetableStop {
@@ -24,11 +22,23 @@ impl TimetablePresenterJson {
 }
 
 impl TimetablePresenter for TimetablePresenterJson {
-    fn present(&self, timetable: &Timetable, eva: &str) {
+    fn present(&mut self, timetable: &Timetable) -> Result<String, String> {
         let station = get_station_name(timetable);
         let stops = get_stops(timetable, &station);
         let json = to_json(&stops);
-        write_to_file(eva, &json);
+
+        match stops.is_empty() {
+            true => {
+                Err(serde_json::to_string("{\"Error\": \"No stops found\"}").unwrap_or_default())
+            }
+            false => match json.is_empty() {
+                true => Err(
+                    serde_json::to_string("{\"Error\": \"JSON conversion failed\"}")
+                        .unwrap_or_default(),
+                ),
+                false => Ok(json),
+            },
+        }
     }
 }
 
@@ -42,14 +52,11 @@ fn get_station_name(timetable: &Timetable) -> String {
 
 fn get_stops(timetable: &Timetable, station: &String) -> Vec<TimetableStop> {
     let mut stops = Vec::new();
-    timetable
-        .s
-        .as_ref()
-        .unwrap()
-        .iter()
-        .for_each(|s| match &s.dp {
-            Some(dp) => match &s.tl {
-                Some(tl) => {
+
+    if let Some(stop_list) = timetable.s.as_ref() {
+        for s in stop_list.iter() {
+            if let Some(dp) = &s.dp {
+                if let Some(tl) = &s.tl {
                     let train_name = get_train_name(tl, dp);
                     let end_station = get_train_end_station(dp);
                     let planned_time = get_planned_time(dp);
@@ -63,10 +70,9 @@ fn get_stops(timetable: &Timetable, station: &String) -> Vec<TimetableStop> {
                         actual_time: changed_time,
                     });
                 }
-                None => {}
-            },
-            None => {}
-        });
+            }
+        }
+    }
 
     stops
 }
@@ -121,11 +127,4 @@ fn get_changed_time(dp: &ArrivalDeparture) -> String {
 fn to_json(stops: &Vec<TimetableStop>) -> String {
     let j = serde_json::to_string(&stops);
     j.unwrap_or_default()
-}
-
-fn write_to_file(eva: &str, json: &String) {
-    let filename = format!("{}.json", &eva);
-    let f = File::create(filename).expect("Unable to create file");
-    let mut f = BufWriter::new(f);
-    f.write_all(json.as_bytes()).expect("Unable to write data");
 }

@@ -29,7 +29,7 @@ impl App {
         }
     }
 
-    pub async fn run(self) {
+    pub async fn run(&mut self) {
         for eva in &self.config.evas {
             let timetable_changes = match self
                 .apiclient
@@ -41,7 +41,11 @@ impl App {
             };
 
             if let Ok(changes) = self.xmlparser.get_timetable(&timetable_changes) {
-                self.presenter.present(&changes, eva);
+                let result = self.presenter.present(&changes);
+                match result {
+                    Ok(result) => print!("{}", result),
+                    Err(err) => print!("{}", err),
+                }
             }
         }
     }

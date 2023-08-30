@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Clone)]
 pub enum PresenterType {
-    Console,
+    PlainText,
     Json,
 }
 
@@ -22,7 +22,7 @@ impl ::std::default::Default for Config {
             client_id: "123456789".to_string(),
             api_key: "123456789".to_string(),
             evas: vec!["8003368".to_string()],
-            presenter: PresenterType::Console,
+            presenter: PresenterType::PlainText,
         }
     }
 }
