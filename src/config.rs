@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Clone)]
-pub enum PresenterType {
-    Console,
+pub enum FormatterType {
+    SimpleString,
     Json,
 }
 
@@ -12,7 +12,7 @@ pub struct Config {
     pub client_id: String,
     pub api_key: String,
     pub evas: Vec<String>,
-    pub presenter: PresenterType,
+    pub formatter: FormatterType,
 }
 
 impl ::std::default::Default for Config {
@@ -22,7 +22,7 @@ impl ::std::default::Default for Config {
             client_id: "123456789".to_string(),
             api_key: "123456789".to_string(),
             evas: vec!["8003368".to_string()],
-            presenter: PresenterType::Console,
+            formatter: FormatterType::Json,
         }
     }
 }

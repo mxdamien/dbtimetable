@@ -1,9 +1,7 @@
 use crate::timetable::{ArrivalDeparture, Timetable};
-use crate::timetablepresenter::TimetablePresenter;
+use crate::timetableformatter::TimetableFormatter;
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
-use std::fs::File;
-use std::io::{BufWriter, Write};
 
 #[derive(Serialize, Deserialize)]
 struct TimetableStop {
@@ -14,21 +12,22 @@ struct TimetableStop {
     actual_time: String,
 }
 
-pub struct TimetablePresenterJson();
+pub struct TimetableFormatterJson();
 
-impl TimetablePresenterJson {
+impl TimetableFormatterJson {
     #[allow(dead_code)]
     pub fn new() -> Self {
         Self {}
     }
 }
 
-impl TimetablePresenter for TimetablePresenterJson {
-    fn present(&self, timetable: &Timetable, eva: &str) {
+impl TimetableFormatter for TimetableFormatterJson {
+    fn format(&self, timetable: &Timetable) -> Result<String, String> {
         let station = get_station_name(timetable);
         let stops = get_stops(timetable, &station);
         let json = to_json(&stops);
-        write_to_file(eva, &json);
+
+        Ok(json)
     }
 }
 
@@ -121,11 +120,4 @@ fn get_changed_time(dp: &ArrivalDeparture) -> String {
 fn to_json(stops: &Vec<TimetableStop>) -> String {
     let j = serde_json::to_string(&stops);
     j.unwrap_or_default()
-}
-
-fn write_to_file(eva: &str, json: &String) {
-    let filename = format!("{}.json", &eva);
-    let f = File::create(filename).expect("Unable to create file");
-    let mut f = BufWriter::new(f);
-    f.write_all(json.as_bytes()).expect("Unable to write data");
 }
